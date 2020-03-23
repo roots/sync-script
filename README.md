@@ -1,31 +1,52 @@
-# Sync Script
+# Roots Migrate
 
-Syncing Bedrock-based WordPress environments with WP-CLI aliases and `rsync`.
+```sh
+roots-migrate
+
+Usage
+  $ roots-migrate run
+  $ roots-migration generate-config
+
+Options
+  --from -f  origin
+  --to   -t  destination
+
+Example
+  $ roots-migrate run --from production --to development
+  $ roots-migrate generate-config
+```
 
 ## Installation
 
-Create a new `scripts/` directory in your Bedrock directory (`site/`) and place the sync script inside of there.
-
-Make sure that `sync.sh` is executable (`chmod u+x sync.sh`).
-
-**WP-CLI must be installed on all environments (local and remote).**
+yarn global add @roots/sync-script
 
 ## Configuration
 
-Edit the variables at the top of `sync.sh` to match the settings for your environments:
+In your project root, generate a config skeleton:
 
-* `DEVDIR` — Local path to uploads directory
-* `DEVSITE` — Local dev URL
-* `PRODDIR` — `user@hostname:/path/to/uploads/`
-* `PRODSITE` — Production URL
-* `STAGDIR` — `user@hostname:/path/to/uploads/`
-* `STAGSITE` — Staging URL
+```sh
+roots-migrate generate-config
+```
 
-The Kinsta version of the script is slightly different:
+Add search and replace strings here.
 
-* `REMOTEDIR` — `user@hostname:/www/example_123/public/shared/uploads/`
-* `PRODPORT` — Production port
-* `STAGPORT` — Staging port
+## Usage
+
+In your project root, run a migration:
+
+```sh
+roots-migrate run --from {origin handle} --to {destination handle}
+```
+
+You can also run in case you forget.
+
+```
+roots-migrate --help
+```
+
+## Requirements
+
+**WP-CLI must be installed on all environments (local and remote).**
 
 ### WP-CLI aliases
 
@@ -77,49 +98,6 @@ Open `.gitignore` in your Bedrock directory (`site/`) and add the following:
 ```
 
 When you sync down to your local development environment a database backup is performed with `wp db export`. This helps you safely recover your database if you accidentally sync, and by making this modification to `.gitignore` you're ensuring that your local database export doesn't accidentally get commited to your git repository.
-
-### Slack notification
-
-Uncomment the lines near the end of the script if you'd like to enable the Slack notification for when the sync directory is up or horizontal.
-
-Make sure to [create a new incoming webhook](https://api.slack.com/incoming-webhooks) and updating the URL in the script, as well as the channel.
-
-## Usage
-
-If your local development environment is a VM, don't run the sync script from inside of the VM — run it on your host machine.
-
-Navigate to the `site/scripts/` directory to use the sync script.
-
-Possible sync directions:
-
-```sh
-# Sync production down to development
-$ ./sync.sh production development
-
-# Sync staging down to development
-$ ./sync.sh staging development
-
-# Sync development up to producton
-$ ./sync.sh development production
-
-# Sync development up to staging
-$ ./sync.sh development staging
-
-# Sync production to staging
-$ ./sync.sh production staging
-
-# Sync staging to production
-$ ./sync.sh staging production
-```
-
-### Local development without VM (Valet, etc.)
-
-The `--local` flag can be passed at the end of the arguments to skip using WP-CLI aliases for development. This means that you can use the sync script on a local development setup such as Valet.
-
-```sh
-# Sync production down to development
-$ ./sync.sh production development --local
-```
 
 ## Troubleshooting
 

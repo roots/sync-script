@@ -1,0 +1,14 @@
+{
+  "name": "migrations",
+  "version": "1.0.0",
+  "main": "cli.js",
+  "author": "Kelly Mears",
+  "license": "MIT",
+  "private": true,
+  "bin": {"wp-migrate": "./cli.js"},
+  "dependencies": {
+    "configstore": "^5.0.1",
+    "meow": "^6.1.0",
+    "shelljs": "^0.8.3"
+  }
+}
