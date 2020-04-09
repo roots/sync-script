@@ -48,26 +48,31 @@ if (migrate.input[0] == 'generate-config') {
 }
 
 const config = require(configPath)
+
 if (! config) {
   console.error('No config found')
+
   process.exit(1)
-} else if (! config[`${migrate.flags.to}`]) {
-  console.error(
-    `No config entry for @${migrate.flags.to} found in ${configPath}`
-  )
+} else if (! config[`${migrate.flags.to}`] || ! config[`${migrate.flags.from}`]) {
+  ! config[migrate.flags.to]
+    && console.error(`No config entry for @${migrate.flags.to} found in ${configPath}`)
+
+  ! config[migrate.flags.from]
+    && console.error(`No config entry for @${migrate.flags.from} found in ${configPath}`)
 
   process.exit(1)
 }
 
-if (migrate.input[0] == 'run') {
-  migrations.init({
-    bedrock: process.cwd(),
-    from: migrate.flags.from,
-    to: migrate.flags.to,
-    strings: config[`${migrate.flags.to}`],
-  }).run();
+const workDir = process.cwd()
 
-  process.exit(0)
+const from = config[migrate.flags.from]
+from.alias = migrate.flags.from
+
+const to = config[migrate.flags.to]
+to.alias = migrate.flags.to
+
+if (migrate.input[0] == 'run') {
+  migrations.init({ from, to, workDir }).run();
 }
 
 process.exit(0)

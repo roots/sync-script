@@ -5,7 +5,9 @@
   "author": "Kelly Mears",
   "license": "MIT",
   "private": true,
-  "bin": {"wp-migrate": "./cli.js"},
+  "bin": {
+    "wp-migrate": "./cli.js"
+  },
   "dependencies": {
     "configstore": "^5.0.1",
     "meow": "^6.1.0",

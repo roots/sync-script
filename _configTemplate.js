@@ -1,20 +1,14 @@
 module.exports = {
-  development: [
-    {
-      search: '',
-      replace: '',
-    },
-  ],
-  staging: [
-    {
-      search: '',
-      replace: '',
-    },
-  ],
-  production: [
-    {
-      search: '',
-      replace: '',
-    },
-  ],
+  development: {
+    ssl: false,
+    host: 'example.test',
+  },
+  staging: {
+    ssl: true,
+    host: 'staging.example.com',
+  },
+  production: {
+    ssl: true,
+    host: 'example.com',
+  },
 }
