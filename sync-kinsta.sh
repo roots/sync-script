@@ -88,7 +88,7 @@ fi
 
 echo
 echo "Would you really like to "
-echo $DB_MESSAGE 
+echo $DB_MESSAGE
 echo $ASSETS_MESSAGE
 read -r -p " [y/N] " response
 
@@ -132,27 +132,10 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
   };
   availto
 
-  # Export/import database, run search & replace
-  if [[ "$LOCAL" = true && $TO == "development" ]]; then
-    wp db export --default-character-set=utf8mb4 &&
-    wp db reset --yes &&
-    wp "@$FROM" db export --default-character-set=utf8mb4 - | wp db import - &&
-    wp search-replace "$FROMSITE" "$TOSITE" --all-tables-with-prefix
-  elif [[ "$LOCAL" = true && $FROM == "development" ]]; then
-    wp "@$TO" db export --default-character-set=utf8mb4 &&
-    wp "@$TO" db reset --yes &&
-    wp db export --default-character-set=utf8mb4 - | wp "@$TO" db import - &&
-    wp "@$TO" search-replace "$FROMSITE" "$TOSITE" --all-tables-with-prefix
-  else
-    wp "@$TO" db export --default-character-set=utf8mb4 &&
-    wp "@$TO" db reset --yes &&
-    wp "@$FROM" db export --default-character-set=utf8mb4 - | wp "@$TO" db import - &&
-    wp "@$TO" search-replace "$FROMSITE" "$TOSITE" --all-tables-with-prefix
-  fi
-
   if [ "$NO_DB" = false ]
   then
   echo "Syncing database..."
+    # Export/import database, run search & replace
     if [[ "$LOCAL" = true && $TO == "development" ]]; then
       wp db export --default-character-set=utf8mb4 &&
       wp db reset --yes &&
