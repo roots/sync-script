@@ -9,39 +9,42 @@
 #   > `brew install jq bash`
 #   > `source ~/.zshrc`
 
-JSON_MAPPING="./sync.json"
+basedir="$(dirname $(realpath ../composer.json))"
+jsonpath="$basedir/scripts/sync.json"
+uploads="$basedir/$(jq -r '.uploads' $jsonpath)"
 
 function connection() {
-  echo $(jq -r ".connection | .$1" $JSON_MAPPING)
+  echo $(jq -r ".connection | .$1" $jsonpath)
 }
 
 function site() {
-  echo $(jq -r ".sites | .[0] | .$1" $JSON_MAPPING)
+  echo $(jq -r ".sites | .[0] | .$1" $jsonpath)
 }
 
 function env() {
-  echo $(jq -r ".sites | .[$1] | .$2 | .$3" $JSON_MAPPING)
+  echo $(jq -r ".sites | .[$1] | .$2 | .$3" $jsonpath)
+}
+
+function protocol() {
+  result="$(jq -r ".secure | .$1" $jsonpath)"
+  if [[ "$result" == "true" ]]; then
+    echo "https://"
+  else
+    echo "http://"
+  fi
 }
 
 function replace() {
   from=$1
   to=$2
-  use_alias=$3
   id=0
-  for _x in $(jq -c ".sites | .[]" $JSON_MAPPING); do
-    if [ "$use_alias" = true ]; then
-      echo "[@${to}] $(env $id $from) => $(env $id $to)";
-      wp search-replace "@${2}" "$(env $id $from)" "$(env $id $to)" --all-tables-with-prefix --network;
-    else
-      echo "[local] $(env $id $from) => $(env $id $to)";
-      wp search-replace "$(env $id $from)" "$(env $id $to)" --all-tables-with-prefix --network;
-    fi
-
+  for _x in $(jq -c ".sites | .[]" $jsonpath); do
+    echo "[@${to}] $(env $id $from) => $(env $id $to)";
+    wp "@${to}" search-replace "$(env $id $from)" "$(env $id $to)" --network;
+    wp "@${to}" search-replace "$(protocol $from)$(env $id $to)" "$(protocol $to)$(env $id $to)" --network;
     ((id++));
   done
 }
-
-uploads=$(jq -r ".uploads" $JSON_MAPPING)
 
 LOCAL=false
 SKIP_DB=false
@@ -166,18 +169,16 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     if [[ "$LOCAL" = true && $TO == "development" ]]; then
       wp db export --default-character-set=utf8mb4 &&
       wp db reset --yes &&
-      wp "@$FROM" db export --default-character-set=utf8mb4 - | wp db import - &&
+      wp "@$FROM" db export --default-character-set=utf8mb4 - | wp db import -
       replace $FROM $TO
     elif [[ "$LOCAL" = true && $FROM == "development" ]]; then
       wp "@$TO" db export --default-character-set=utf8mb4 &&
-      wp "@$TO" db reset --yes &&
       wp db export --default-character-set=utf8mb4 - | wp "@$TO" db import - &&
-      replace $FROM $TO true
+      replace $FROM $TO
     else
       wp "@$TO" db export --default-character-set=utf8mb4 &&
-      wp "@$TO" db reset --yes &&
       wp "@$FROM" db export --default-character-set=utf8mb4 - | wp "@$TO" db import - &&
-      replace $FROM $TO true
+      replace $FROM $TO
     fi
   fi
 
@@ -185,7 +186,7 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
   then
   echo "Syncing assets..."
     # Sync uploads directory
-    $(chmod -R 755 "$uploads") &&
+    $(chmod -R 755 $uploads) &&
     if [[ $DIR == "horizontally"* ]]; then
       [[ $FROMDIR =~ ^(.*): ]] && FROMHOST=${BASH_REMATCH[1]}
       [[ $FROMDIR =~ ^(.*):(.*)$ ]] && FROMDIR=${BASH_REMATCH[2]}
