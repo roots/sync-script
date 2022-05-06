@@ -1,0 +1,15 @@
+{
+  "uploads": "web/app/uploads/",
+  "connection": {
+    "development": "web@example.com:/srv/www/example.com/shared/uploads/",
+    "staging": "web@staging.example.com:/srv/www/example.com/shared/uploads/",
+    "production": "web@example.com:/srv/www/example.com/shared/uploads/"
+  },
+  "sites": [
+    {
+      "production": "https://example.com",
+      "staging": "https://staging.example.com",
+      "development": "http://example.com"
+    }
+  ]
+}
