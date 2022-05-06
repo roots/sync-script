@@ -37,11 +37,26 @@ function protocol() {
 function replace() {
   from=$1
   to=$2
+  local=$3
   id=0
   for _x in $(jq -c ".sites | .[]" $jsonpath); do
     echo "[@${to}] $(env $id $from) => $(env $id $to)";
-    wp "@${to}" search-replace "$(env $id $from)" "$(env $id $to)" --network;
-    wp "@${to}" search-replace "$(protocol $from)$(env $id $to)" "$(protocol $to)$(env $id $to)" --network;
+    echo "[@${to}] $(protocol $from)$(env $id $to) => $(protocol $to)$(env $id $to)";
+
+    if [[ "$local" == "true" ]]; then
+      wp search-replace "$(env $id $from)" "$(env $id $to)" --network;
+      if [[ "$(protocol $from)$(env $id $to)" != "$(protocol $from)$(env $id $to)" ]]
+      then
+        wp search-replace "$(protocol $from)$(env $id $to)" "$(protocol $to)$(env $id $to)" --network;
+      fi
+    else
+      wp "@${to}" search-replace "$(env $id $from)" "$(env $id $to)" --network;
+      if [[ "$(protocol $from)$(env $id $to)" != "$(protocol $from)$(env $id $to)" ]]
+      then
+        wp "@${to}" search-replace "$(protocol $from)$(env $id $to)" "$(protocol $to)$(env $id $to)" --network;
+      fi
+    fi;
+
     ((id++));
   done
 }
@@ -170,13 +185,15 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
       wp db export --default-character-set=utf8mb4 &&
       wp db reset --yes &&
       wp "@$FROM" db export --default-character-set=utf8mb4 - | wp db import -
-      replace $FROM $TO
+      replace $FROM $TO true
     elif [[ "$LOCAL" = true && $FROM == "development" ]]; then
       wp "@$TO" db export --default-character-set=utf8mb4 &&
+      wp "@$TO" db reset --yes &&
       wp db export --default-character-set=utf8mb4 - | wp "@$TO" db import - &&
       replace $FROM $TO
     else
       wp "@$TO" db export --default-character-set=utf8mb4 &&
+      wp "@$TO" db reset --yes &&
       wp "@$FROM" db export --default-character-set=utf8mb4 - | wp "@$TO" db import - &&
       replace $FROM $TO
     fi
