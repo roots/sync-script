@@ -45,13 +45,13 @@ function replace() {
 
     if [[ "$local" == "true" ]]; then
       wp search-replace "$(env $id $from)" "$(env $id $to)" --network;
-      if [[ "$(protocol $from)$(env $id $to)" != "$(protocol $from)$(env $id $to)" ]]
+      if [[ "$(protocol $from)$(env $id $to)" != "$(protocol $to)$(env $id $to)" ]]
       then
         wp search-replace "$(protocol $from)$(env $id $to)" "$(protocol $to)$(env $id $to)" --network;
       fi
     else
       wp "@${to}" search-replace "$(env $id $from)" "$(env $id $to)" --network;
-      if [[ "$(protocol $from)$(env $id $to)" != "$(protocol $from)$(env $id $to)" ]]
+      if [[ "$(protocol $from)$(env $id $to)" != "$(protocol $to)$(env $id $to)" ]]
       then
         wp "@${to}" search-replace "$(protocol $from)$(env $id $to)" "$(protocol $to)$(env $id $to)" --network;
       fi
