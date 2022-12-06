@@ -1,0 +1,20 @@
+{
+  "uploads": "web/app/uploads/",
+  "connection": {
+    "development": "web@example.com:/srv/www/example.com/shared/uploads/",
+    "staging": "web@staging.example.com:/srv/www/example.com/shared/uploads/",
+    "production": "web@example.com:/srv/www/example.com/shared/uploads/"
+  },
+  "secure": {
+    "development": false,
+    "staging": true,
+    "production": true
+  },
+  "sites": [
+    {
+      "production": "example.com",
+      "staging": "staging.example.com",
+      "development": "example.com"
+    }
+  ]
+}
