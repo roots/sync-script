@@ -10,7 +10,7 @@ DEVSITE="http://example.test"
 PRODDIR="web@example.com:/srv/www/example.com/shared/uploads/"
 PRODSITE="https://example.com"
 
-STAGDIR="web@example.example.com:/srv/www/example.com/shared/uploads/"
+STAGDIR="web@staging.example.com:/srv/www/example.com/shared/uploads/"
 STAGSITE="http://example.com"
 
 LOCAL=false
