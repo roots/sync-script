@@ -5,17 +5,18 @@
 # Copyright (c) Ben Word
 
 DEVDIR="web/app/uploads/"
-DEVSITE="https://example.test"
+DEVSITE="http://abaretirement.test"
 
-PRODDIR="web@example.com:/srv/www/example.com/shared/uploads/"
-PRODSITE="https://example.com"
+PRODDIR="web@abaretirement.com:/srv/www/abaretirement.com/shared/uploads/"
+PRODSITE="https://abaretirement.com"
 
-STAGDIR="web@staging.example.com:/srv/www/example.com/shared/uploads/"
-STAGSITE="https://staging.example.com"
+STAGDIR="web@abaretirement.approvalserver.com:/srv/www/abaretirement.com/shared/uploads/"
+STAGSITE="http://abaretirement.approvalserver.com"
 
 LOCAL=false
 SKIP_DB=false
 SKIP_ASSETS=false
+UNATTENDED=false
 POSITIONAL_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -30,6 +31,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --local)
       LOCAL=true
+      shift
+      ;;
+    --unattended)
+      UNATTENDED=true
       shift
       ;;
     --*)
@@ -83,11 +88,28 @@ then
   exit;
 fi
 
-echo
-echo "Would you really like to "
-echo $DB_MESSAGE
-echo $ASSETS_MESSAGE
-read -r -p " [y/N] " response
+# If unattended is true, and the target is production, exit
+if [ "$UNATTENDED" = true ] && [ "$TO" = "production" ]
+then
+  echo "You cannot sync to production in unattended mode."
+  exit;
+fi
+
+# If unattended is false, prompt the user
+if [ "$UNATTENDED" = false ]
+then
+  echo
+  echo "Would you really like to "
+  echo $DB_MESSAGE
+  echo $ASSETS_MESSAGE
+  read -r -p " [y/N] " response
+fi
+
+# If unattended is true, or the user responds with Y or y, continue
+if [ "$UNATTENDED" = true ]
+then
+  response="y"
+fi
 
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
   # Change to site directory
