@@ -5,13 +5,13 @@
 # Copyright (c) Ben Word
 
 DEVDIR="web/app/uploads/"
-DEVSITE="http://abaretirement.test"
+DEVSITE="http://example.test"
 
-PRODDIR="web@abaretirement.com:/srv/www/abaretirement.com/shared/uploads/"
-PRODSITE="https://abaretirement.com"
+PRODDIR="web@example.com:/srv/www/example.com/shared/uploads/"
+PRODSITE="https://example.com"
 
-STAGDIR="web@abaretirement.approvalserver.com:/srv/www/abaretirement.com/shared/uploads/"
-STAGSITE="http://abaretirement.approvalserver.com"
+STAGDIR="web@example.example.com:/srv/www/example.com/shared/uploads/"
+STAGSITE="http://example.com"
 
 LOCAL=false
 SKIP_DB=false
