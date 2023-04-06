@@ -16,6 +16,7 @@ STAGSITE="https://staging.example.com"
 LOCAL=false
 SKIP_DB=false
 SKIP_ASSETS=false
+UNATTENDED=false
 POSITIONAL_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -30,6 +31,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --local)
       LOCAL=true
+      shift
+      ;;
+    --unattended)
+      UNATTENDED=true
       shift
       ;;
     --*)
@@ -83,11 +88,28 @@ then
   exit;
 fi
 
-echo
-echo "Would you really like to "
-echo $DB_MESSAGE
-echo $ASSETS_MESSAGE
-read -r -p " [y/N] " response
+# If unattended is true, and the target is production, exit
+if [ "$UNATTENDED" = true ] && [ "$TO" = "production" ]
+then
+  echo "You cannot sync to production in unattended mode."
+  exit;
+fi
+
+# If unattended is false, prompt the user
+if [ "$UNATTENDED" = false ]
+then
+  echo
+  echo "Would you really like to "
+  echo $DB_MESSAGE
+  echo $ASSETS_MESSAGE
+  read -r -p " [y/N] " response
+fi
+
+# If unattended is true, or the user responds with Y or y, continue
+if [ "$UNATTENDED" = true ]
+then
+  response="y"
+fi
 
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
   # Change to site directory
@@ -174,4 +196,6 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
   #   curl -X POST -H "Content-type: application/json" --data "{\"attachments\":[{\"fallback\": \"\",\"color\":\"#36a64f\",\"text\":\"🔄 Sync from ${FROMSITE} to ${TOSITE} by ${USER} complete \"}],\"channel\":\"#site\"}" https://hooks.slack.com/services/xx/xx/xx
   # fi
   echo -e "\n🔄  Sync from $FROM to $TO complete.\n\n    ${bold}$TOSITE${normal}\n"
+fi
+
 fi
